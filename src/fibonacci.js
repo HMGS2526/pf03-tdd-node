@@ -1,17 +1,15 @@
+const N_MAXIMO = 78;
+const MENSAJE_ERROR = 'solo números enteros entre 0 y 78';
+
 export function fibonacci(n) {
-  if (typeof n !== 'number' || !Number.isInteger(n) || n < 0 || n > 78) {
-    throw new RangeError('solo números enteros entre 0 y 78');
+  if (!Number.isInteger(n) || n < 0 || n > N_MAXIMO) {
+    throw new RangeError(MENSAJE_ERROR);
   }
 
-  if (n === 0) return 0;
-  if (n === 1) return 1;
-
-  let a = 0;
-  let b = 1;
-  for (let i = 2; i <= n; i++) {
-    const siguiente = a + b;
-    a = b;
-    b = siguiente;
+  let anterior = 0;
+  let actual = 1;
+  for (let i = 0; i < n; i++) {
+    [anterior, actual] = [actual, anterior + actual];
   }
-  return b;
+  return anterior;
 }
