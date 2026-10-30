@@ -1,12 +1,17 @@
 {
   "name": "pf03-tdd-node",
-  "version": "1.0.0",
-  "description": "Práctica TDD con Node",
+"version": "1.0.0",
+  "description": "PF03 Actividad 1: TDD con Node.js, Vitest y CI",
   "type": "module",
   "scripts": {
-    "test": "node --test"
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+  "engines": {
+    "node": ">=24"
+  },
+  "license": "ISC",
+  "devDependencies": {
+    "vitest": "^4.0.0"
+  }
 }
