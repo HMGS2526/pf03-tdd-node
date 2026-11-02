@@ -1,41 +1,75 @@
-import { test } from 'node:test';
-import assert from 'node:assert/strict';
+import { describe, it, expect } from 'vitest';
 import { esPinValido } from '../src/esPinValido.js';
 
-test('rechaza null y undefined', () => {
-  assert.equal(esPinValido(null), false);
-  assert.equal(esPinValido(undefined), false);
-});
+describe('esPinValido', () => {
+  describe('PIN válidos', () => {
+    it.each(['1234', '123456', '0123', '000001', '1112', '121212'])(
+      'acepta "%s"',
+      (pin) => {
+        expect(esPinValido(pin)).toBe(true);
+      }
+    );
 
-test('rechaza cadena vacía', () => {
-  assert.equal(esPinValido(''), false);
-});
+    it('conserva los ceros iniciales', () => {
+      expect(esPinValido('0123')).toBe(true);
+      expect(esPinValido('000001')).toBe(true);
+    });
+  });
 
-test('acepta PIN de 4 dígitos válido', () => {
-  assert.equal(esPinValido('1234'), true);
-});
+  describe('longitud incorrecta', () => {
+    it.each(['', '1', '123', '12345', '1234567', '12345678'])(
+      'rechaza "%s"',
+      (pin) => {
+        expect(esPinValido(pin)).toBe(false);
+      }
+    );
+  });
 
-test('acepta PIN de 6 dígitos válido', () => {
-  assert.equal(esPinValido('123456'), true);
-});
+  describe('todos los dígitos iguales', () => {
+    it.each(['1111', '0000', '888888', '000000', '999999'])(
+      'rechaza "%s"',
+      (pin) => {
+        expect(esPinValido(pin)).toBe(false);
+      }
+    );
+  });
 
-test('rechaza longitudes distintas de 4 o 6', () => {
-  assert.equal(esPinValido('123'), false);
-  assert.equal(esPinValido('12345'), false);
-  assert.equal(esPinValido('1234567'), false);
-});
+  describe('caracteres no permitidos', () => {
+    it.each([
+      ['una letra', '12a4'],
+      ['un espacio inicial', ' 1234'],
+      ['un espacio final', '1234 '],
+      ['un espacio intermedio', '12 34'],
+      ['un signo más', '+123'],
+      ['un signo menos', '-123'],
+      ['un guion separador', '12-34'],
+      ['un punto', '1.234'],
+      ['un salto de línea final', '1234\n'],
+      ['dígitos árabes no ASCII', '١٢٣٤'],
+      ['dígitos de ancho completo', '１２３４'],
+    ])('rechaza un PIN con %s', (_descripcion, pin) => {
+      expect(esPinValido(pin)).toBe(false);
+    });
+  });
 
-test('rechaza caracteres que no son dígitos', () => {
-  assert.equal(esPinValido('12a4'), false);
-  assert.equal(esPinValido('12 45'), false);
-  assert.equal(esPinValido('12-456'), false);
-});
+  describe('tipos incorrectos', () => {
+    it.each([
+      ['null', null],
+      ['undefined', undefined],
+      ['un número de 4 cifras', 1234],
+      ['un número de 6 cifras', 123456],
+      ['un booleano', true],
+      ['un array de caracteres', ['1', '2', '3', '4']],
+      ['un objeto', {}],
+      ['NaN', NaN],
+      ['un BigInt', 1234n],
+    ])('devuelve false con %s', (_descripcion, entrada) => {
+      expect(esPinValido(entrada)).toBe(false);
+    });
 
-test('rechaza PIN con todos los dígitos iguales', () => {
-  assert.equal(esPinValido('1111'), false);
-  assert.equal(esPinValido('888888'), false);
-});
-
-test('rechaza valores que no son string', () => {
-  assert.equal(esPinValido(1234), false);
+    it('nunca lanza excepciones', () => {
+      expect(() => esPinValido(Symbol('pin'))).not.toThrow();
+      expect(esPinValido(Symbol('pin'))).toBe(false);
+    });
+  });
 });
